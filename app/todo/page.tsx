@@ -36,8 +36,7 @@ export default async function Todo() {
       </div>
 
       <div className="animate-in flex-1 flex flex-col gap-20 opacity-0 max-w-4xl px-3">
-        <main className="flex-1 flex flex-col gap-6">
-          <h2 className="font-bold text-4xl mb-4">To-do list</h2>
+        <main className="w-full max-w-4xl flex-1 flex flex-col gap-6">
           <TodoList items={todoItems} />
         </main>
       </div>
