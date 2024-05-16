@@ -1,8 +1,10 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { XCircle } from "lucide-react";
 import AddNewTask from "../AddNewTask";
 import updateTodoStatus from "../../actions/updateTodo";
+import deleteTodo from "@/actions/deleteTodo";
 
 export type TodoItem = {
   id: number;
@@ -40,6 +42,12 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
                     {item.description}
                   </p>
                 </div>
+                <XCircle
+                  className="h-5 w-5 hover:text-red-600 cursor-pointer"
+                  onClick={async () => {
+                    await deleteTodo(item.id);
+                  }}
+                />
               </CardContent>
             </Card>
           );
