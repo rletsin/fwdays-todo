@@ -22,8 +22,6 @@ export default async function Todo() {
   // Handle null case for todos
   const todoItems = todos || [];
 
-  function addTodo(event: React.MouseEvent<HTMLButtonElement>): void {}
-
   return (
     <div className="flex-1 w-full flex flex-col gap-20 items-center">
       <div className="w-full">

@@ -119,7 +119,6 @@ export default function AddNewTask() {
           type="submit"
           onClick={async () => {
             const todoItem = {
-              id: crypto.randomUUID(),
               name: name ?? "",
               description: description ?? "",
               due: date ? date.toISOString().slice(0, 10) : "",

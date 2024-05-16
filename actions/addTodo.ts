@@ -4,7 +4,12 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 const supabase = createClient();
-export default async function addTodo(todo: TodoItem) {
+export default async function addTodo(todo: {
+  name: string;
+  description: string;
+  due: string;
+  priority: string;
+}) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
