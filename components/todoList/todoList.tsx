@@ -41,24 +41,30 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
   });
 
   return (
-    <>
-      <AddNewTask />
-      <Filters filters={filters} setFilters={setFilters} />
-      <div className="space-y-4">
-        {items
-          .filter(STATUS_FILTER[filters.status])
-          .filter(PRIORITY_FILTER[filters.priority])
-          .map((item) => {
-            return <TaskCard key={item.id} todoItem={item} />;
-          })}
+    <div className="flex justify-between gap-4">
+      <Card className="w-80 h-fit">
+        <CardContent className="pt-4">
+          <Filters filters={filters} setFilters={setFilters} />
+        </CardContent>
+      </Card>
+      <div className="w-[800px]">
+        <AddNewTask />
+        <div className="space-y-4">
+          {items
+            .filter(STATUS_FILTER[filters.status])
+            .filter(PRIORITY_FILTER[filters.priority])
+            .map((item) => {
+              return <TaskCard key={item.id} todoItem={item} />;
+            })}
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
 function TaskCard({ todoItem }: { todoItem: TodoItem }) {
   return (
-    <Card key={todoItem.id} className="w-[800px]">
+    <Card key={todoItem.id} className="w-full">
       <CardContent className="flex items-center gap-4 pt-4">
         <Checkbox
           className="h-5 w-5 rounded-full"
