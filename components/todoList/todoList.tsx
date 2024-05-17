@@ -18,18 +18,21 @@ export type TodoItem = {
   is_complete: boolean;
 };
 
-const STATUS_FILTER = {
+const STATUS_FILTER: { [key: string]: (task: TodoItem) => boolean } = {
   All: () => true,
   Active: (task: TodoItem) => !task.is_complete,
   Completed: (task: TodoItem) => task.is_complete,
 };
 
-const PRIORITY_FILTER = {
+const PRIORITY_FILTER: { [key: string]: (task: TodoItem) => boolean } = {
   All: () => true,
   High: (task: TodoItem) => task.priority === "high",
   Medium: (task: TodoItem) => task.priority === "medium",
   Low: (task: TodoItem) => task.priority === "low",
 };
+
+const STATUS_FILTER_NAMES = Object.keys(STATUS_FILTER);
+const PRIORITY_FILTER_NAMES = Object.keys(PRIORITY_FILTER);
 
 export default function TodoList({ items }: { items: TodoItem[] }) {
   const [filters, setFilters] = useState({
@@ -94,16 +97,12 @@ function TaskCard({ todoItem }: { todoItem: TodoItem }) {
 function Filters({ filters, setFilters }: { filters: any; setFilters: any }) {
   const statusFilter = filters.status;
   const priorityFilter = filters.priority;
-  const STATUS_FILTER_NAMES = Object.keys(STATUS_FILTER);
-  const PRIORITY_FILTER_NAMES = Object.keys(PRIORITY_FILTER);
 
   return (
-    <div className="mb-4 flex items-center">
-      <Label htmlFor="filter-priority" className="ml-4">
-        Filter by priority:
-      </Label>
+    <div className="flex flex-col gap-4 ">
+      <Label htmlFor="filter-completed">Filter by priority:</Label>
       <RadioGroup
-        className="flex items-center gap-2"
+        className="flex items-center gap-4"
         defaultValue="All"
         value={priorityFilter}
         onValueChange={(e) =>
@@ -115,21 +114,15 @@ function Filters({ filters, setFilters }: { filters: any; setFilters: any }) {
         id="filter-priority"
       >
         {PRIORITY_FILTER_NAMES.map((name, index) => (
-          <Label
-            key={index}
-            className="font-normal"
-            htmlFor={`priority-${name}`}
-          >
+          <div key={index} className="flex items-center gap-2">
             <RadioGroupItem checked={name === priorityFilter} value={name} />
-            {name}
-          </Label>
+            <Label htmlFor={`priority-${name}`}>{name}</Label>
+          </div>
         ))}
       </RadioGroup>
-      <Label htmlFor="filter-completed" className="ml-4">
-        Filter by status:
-      </Label>
+      <Label htmlFor="filter-completed">Filter by status:</Label>
       <RadioGroup
-        className="flex items-center gap-2"
+        className="flex items-center gap-4"
         defaultValue="All"
         value={statusFilter}
         onValueChange={(e) =>
@@ -138,10 +131,10 @@ function Filters({ filters, setFilters }: { filters: any; setFilters: any }) {
         id="filter-completed"
       >
         {STATUS_FILTER_NAMES.map((name, index) => (
-          <Label key={index} className="font-normal" htmlFor={`status-${name}`}>
+          <div key={index} className="flex items-center gap-2">
             <RadioGroupItem checked={name === statusFilter} value={name} />
-            {name}
-          </Label>
+            <Label htmlFor={`status-${name}`}>{name}</Label>
+          </div>
         ))}
       </RadioGroup>
     </div>

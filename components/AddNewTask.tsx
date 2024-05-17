@@ -79,30 +79,26 @@ export default function AddNewTask() {
             onValueChange={(e) => setPriority(e)}
             id="priority"
           >
-            <Label htmlFor="priority-low">
-              <RadioGroupItem
-                id="priority-low"
-                checked={priority === "low"}
-                value="low"
-              />
-              Low
-            </Label>
-            <Label htmlFor="priority-medium">
-              <RadioGroupItem
-                id="priority-medium"
-                checked={priority === "medium"}
-                value="medium"
-              />
-              Medium
-            </Label>
-            <Label htmlFor="priority-high">
-              <RadioGroupItem
-                id="priority-high"
-                checked={priority === "high"}
-                value="high"
-              />
-              High
-            </Label>
+            <RadioGroupItem
+              id="priority-low"
+              checked={priority === "low"}
+              value="low"
+            />
+            <Label htmlFor="priority-low">Low</Label>
+
+            <RadioGroupItem
+              id="priority-medium"
+              checked={priority === "medium"}
+              value="medium"
+            />
+            <Label htmlFor="priority-medium">Medium</Label>
+
+            <RadioGroupItem
+              id="priority-high"
+              checked={priority === "high"}
+              value="high"
+            />
+            <Label htmlFor="priority-high">High</Label>
           </RadioGroup>
         </div>
         <Button
