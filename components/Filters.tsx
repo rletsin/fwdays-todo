@@ -47,7 +47,11 @@ export default function Filters({
       >
         {PRIORITY_FILTER_NAMES.map((name, index) => (
           <div key={index} className="flex items-center gap-2">
-            <RadioGroupItem checked={name === priorityFilter} value={name} />
+            <RadioGroupItem
+              checked={name === priorityFilter}
+              value={name}
+              id={`priority-${name}`}
+            />
             <Label htmlFor={`priority-${name}`}>{name}</Label>
           </div>
         ))}
@@ -67,7 +71,11 @@ export default function Filters({
       >
         {STATUS_FILTER_NAMES.map((name, index) => (
           <div key={index} className="flex items-center gap-2">
-            <RadioGroupItem checked={name === statusFilter} value={name} />
+            <RadioGroupItem
+              checked={name === statusFilter}
+              value={name}
+              id={`status-${name}`}
+            />
             <Label htmlFor={`status-${name}`}>{name}</Label>
           </div>
         ))}

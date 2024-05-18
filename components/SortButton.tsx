@@ -15,8 +15,8 @@ export default function SortButton({
 }) {
   return (
     <div className="flex gap-4 items-center place-content-end my-4">
-      <Label>Sort by:</Label>
-      <Select onValueChange={setSelectedSort}>
+      <Label htmlFor="sort-by-select">Sort by:</Label>
+      <Select onValueChange={setSelectedSort} id="sort-by-select">
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select option" />
         </SelectTrigger>
