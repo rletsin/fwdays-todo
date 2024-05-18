@@ -14,7 +14,7 @@ export default async function updateTodo(
   if (!user) {
     throw new Error("User is not logged in");
   }
-  if (!todoId || !updatedCompleteStatus) {
+  if (!todoId) {
     throw new Error("Todo id and status should be specified");
   }
 

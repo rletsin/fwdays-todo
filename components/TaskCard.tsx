@@ -1,17 +1,24 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { XCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import updateTodoStatus from "@/actions/updateTodo";
 import deleteTodo from "@/actions/deleteTodo";
 import { TodoItem } from "@/lib/models";
 
 export default function TaskCard({ todoItem }: { todoItem: TodoItem }) {
+  const badgeColor: { [key: string]: string } = {
+    high: "bg-red-200",
+    medium: "bg-yellow-200",
+    low: "bg-green-200",
+  };
+
   return (
     <Card key={todoItem.id} className="w-full">
       <CardContent className="flex items-center gap-4 pt-4">
         <Checkbox
-          className="h-5 w-5 rounded-full"
+          className="h-5 w-5 rounded-full data-[state=checked]:bg-green-700 data-[state=checked]:border-green-700"
           id="task1"
           checked={todoItem.is_complete}
           onClick={async () => {
@@ -19,21 +26,7 @@ export default function TaskCard({ todoItem }: { todoItem: TodoItem }) {
           }}
         />
         <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <Label className="text-base font-medium" htmlFor="task1">
-              {todoItem.name}
-            </Label>
-            {todoItem.priority && (
-              <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
-                {todoItem.priority}
-              </span>
-            )}
-            {todoItem.due && (
-              <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
-                {todoItem.due}
-              </span>
-            )}
-          </div>
+          <Label className="text-base font-medium">{todoItem.name}</Label>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {todoItem.description}
           </p>
@@ -45,6 +38,20 @@ export default function TaskCard({ todoItem }: { todoItem: TodoItem }) {
           }}
         />
       </CardContent>
+      <CardFooter className="flex gap-4 place-content-end">
+        <span className="font-light text-xs">
+          Due date:{" "}
+          {todoItem.due && <Badge variant="outline">{todoItem.due}</Badge>}
+        </span>
+        <span className="font-light text-xs">
+          Priority:{" "}
+          {todoItem.priority && (
+            <Badge variant="outline" className={badgeColor[todoItem.priority]}>
+              {todoItem.priority}
+            </Badge>
+          )}
+        </span>
+      </CardFooter>
     </Card>
   );
 }
