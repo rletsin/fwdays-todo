@@ -8,6 +8,16 @@ import AddNewTask from "../AddNewTask";
 import updateTodoStatus from "../../actions/updateTodo";
 import deleteTodo from "@/actions/deleteTodo";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format, compareAsc } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn, convertDate } from "@/lib/utils";
 
 export type TodoItem = {
   id: number;
@@ -38,6 +48,7 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
   const [filters, setFilters] = useState({
     status: "All",
     priority: "All",
+    date: "All",
   });
 
   return (
@@ -53,6 +64,15 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
           {items
             .filter(STATUS_FILTER[filters.status])
             .filter(PRIORITY_FILTER[filters.priority])
+            .filter((item) => {
+              if (filters.date !== "All" && item?.due) {
+                return (
+                  compareAsc(new Date(item.due), new Date(filters.date)) >= 0
+                );
+              } else {
+                return true;
+              }
+            })
             .map((item) => {
               return <TaskCard key={item.id} todoItem={item} />;
             })}
@@ -84,6 +104,11 @@ function TaskCard({ todoItem }: { todoItem: TodoItem }) {
                 {todoItem.priority}
               </span>
             )}
+            {todoItem.due && (
+              <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
+                {todoItem.due}
+              </span>
+            )}
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {todoItem.description}
@@ -101,8 +126,10 @@ function TaskCard({ todoItem }: { todoItem: TodoItem }) {
 }
 
 function Filters({ filters, setFilters }: { filters: any; setFilters: any }) {
+  const [calendarFilterOpen, setCalendarFilterOpen] = useState<boolean>(false);
   const statusFilter = filters.status;
   const priorityFilter = filters.priority;
+  const dateFilter = filters.date;
 
   return (
     <div className="flex flex-col gap-4 ">
@@ -143,6 +170,42 @@ function Filters({ filters, setFilters }: { filters: any; setFilters: any }) {
           </div>
         ))}
       </RadioGroup>
+      <Label htmlFor="filter-due-date">Filter by due date:</Label>
+      <Popover open={calendarFilterOpen} onOpenChange={setCalendarFilterOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-[240px] justify-start text-left font-normal",
+              !dateFilter && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {dateFilter && dateFilter !== "All" ? (
+              format(dateFilter, "PPP")
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={dateFilter}
+            onSelect={(e) => {
+              const selectedDate = e as Date;
+              if (selectedDate) {
+                setFilters({
+                  ...filters,
+                  date: convertDate(selectedDate),
+                });
+              }
+              setCalendarFilterOpen(false);
+            }}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

@@ -22,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { convertDate } from "@/lib/utils";
 
 export default function AddNewTask() {
   const [name, setName] = useState("");
@@ -129,7 +130,7 @@ export default function AddNewTask() {
                 const todoItem = {
                   name: name ?? "",
                   description: description ?? "",
-                  due: date ? date.toISOString().slice(0, 10) : "",
+                  due: date ? convertDate(date) : "",
                   priority: priority ?? "",
                 };
 
