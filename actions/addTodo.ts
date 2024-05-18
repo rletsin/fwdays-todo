@@ -1,5 +1,4 @@
 "use server";
-import { TodoItem } from "@/components/todoList/todoList";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -19,8 +18,6 @@ export default async function addTodo(todo: {
   if (!todo) {
     throw new Error("Todo item is required");
   }
-  console.log("Inserting todo item");
-  console.log(todo);
 
   // Save todo item to supabase database
   const { data, error } = await supabase.from("todos").insert({
@@ -31,8 +28,8 @@ export default async function addTodo(todo: {
     user_id: user.id,
   });
 
-  console.log(data);
-  console.log(error);
+  console.log("data", data);
+  console.log("error", error);
 
   revalidatePath("/todo");
 }

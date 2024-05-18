@@ -11,13 +11,21 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { format, compareAsc } from "date-fns";
+import { format, compareAsc, compareDesc } from "date-fns";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn, convertDate } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type TodoItem = {
   id: number;
@@ -26,6 +34,7 @@ export type TodoItem = {
   priority?: string;
   due?: string;
   is_complete: boolean;
+  inserted_at: Date;
 };
 
 const STATUS_FILTER: { [key: string]: (task: TodoItem) => boolean } = {
@@ -50,6 +59,8 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
     priority: "All",
     date: "All",
   });
+  const [sortBy, setSortBy] = useState("");
+  const priorityOrder = { low: 0, medium: 1, high: 2 }; // Define priority order
 
   return (
     <div className="flex justify-between gap-4">
@@ -60,6 +71,7 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
       </Card>
       <div className="w-[800px]">
         <AddNewTask />
+        <SortButton setSelectedSort={setSortBy} />
         <div className="space-y-4">
           {items
             .filter(STATUS_FILTER[filters.status])
@@ -67,10 +79,27 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
             .filter((item) => {
               if (filters.date !== "All" && item?.due) {
                 return (
-                  compareAsc(new Date(item.due), new Date(filters.date)) >= 0
+                  compareDesc(new Date(item.due), new Date(filters.date)) >= 0
                 );
               } else {
                 return true;
+              }
+            })
+            .sort((a, b) => {
+              switch (sortBy) {
+                case "priority-asc":
+                  return priorityOrder[a.priority] - priorityOrder[b.priority];
+                case "priority-desc":
+                  return priorityOrder[b.priority] - priorityOrder[a.priority];
+                case "due-date-asc":
+                  return compareAsc(new Date(a.due), new Date(b.due));
+                case "due-date-desc":
+                  return compareAsc(new Date(b.due), new Date(a.due));
+                default:
+                  return compareAsc(
+                    new Date(b.inserted_at),
+                    new Date(a.inserted_at)
+                  );
               }
             })
             .map((item) => {
@@ -206,6 +235,31 @@ function Filters({ filters, setFilters }: { filters: any; setFilters: any }) {
           />
         </PopoverContent>
       </Popover>
+    </div>
+  );
+}
+
+function SortButton({
+  setSelectedSort,
+}: {
+  setSelectedSort: (value: string) => void;
+}) {
+  return (
+    <div className="flex gap-4 items-center place-content-end my-4">
+      <Label>Sort by:</Label>
+      <Select onValueChange={(value) => setSelectedSort(value)}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Select option" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="priority-asc">Priority: Low to High</SelectItem>
+            <SelectItem value="priority-desc">Priority: High to Low</SelectItem>
+            <SelectItem value="due-date-asc">Due date: Low to High</SelectItem>
+            <SelectItem value="due-date-desc">Due date: High to Low</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </div>
   );
 }
