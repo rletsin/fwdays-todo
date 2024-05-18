@@ -1,57 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { XCircle } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import AddNewTask from "../AddNewTask";
-import updateTodoStatus from "../../actions/updateTodo";
-import deleteTodo from "@/actions/deleteTodo";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format, compareAsc, compareDesc } from "date-fns";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn, convertDate } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-export type TodoItem = {
-  id: number;
-  name: string;
-  description?: string;
-  priority?: string;
-  due?: string;
-  is_complete: boolean;
-  inserted_at: Date;
-};
-
-const STATUS_FILTER: { [key: string]: (task: TodoItem) => boolean } = {
-  All: () => true,
-  Active: (task: TodoItem) => !task.is_complete,
-  Completed: (task: TodoItem) => task.is_complete,
-};
-
-const PRIORITY_FILTER: { [key: string]: (task: TodoItem) => boolean } = {
-  All: () => true,
-  High: (task: TodoItem) => task.priority === "high",
-  Medium: (task: TodoItem) => task.priority === "medium",
-  Low: (task: TodoItem) => task.priority === "low",
-};
-
-const STATUS_FILTER_NAMES = Object.keys(STATUS_FILTER);
-const PRIORITY_FILTER_NAMES = Object.keys(PRIORITY_FILTER);
+import AddNewTask from "@/components/AddNewTask";
+import Filters from "@/components/Filters";
+import SortButton from "@/components/SortButton";
+import TaskCard from "@/components/TaskCard";
+import { compareAsc, compareDesc } from "date-fns";
+import { TodoItem } from "@/lib/models";
+import { PRIORITY_FILTER, STATUS_FILTER } from "@/lib/filtersConstants";
 
 export default function TodoList({ items }: { items: TodoItem[] }) {
   const [filters, setFilters] = useState({
@@ -60,7 +16,35 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
     date: "All",
   });
   const [sortBy, setSortBy] = useState("");
-  const priorityOrder = { low: 0, medium: 1, high: 2 }; // Define priority order
+  const priorityOrder: { [key: string]: number } = {
+    low: 0,
+    medium: 1,
+    high: 2,
+  };
+
+  const filteredItems = items
+    .filter(STATUS_FILTER[filters.status])
+    .filter(PRIORITY_FILTER[filters.priority])
+    .filter((item) => {
+      if (filters.date !== "All" && item.due) {
+        return compareDesc(new Date(item.due), new Date(filters.date)) >= 0;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "priority-asc":
+          return priorityOrder[a.priority] - priorityOrder[b.priority];
+        case "priority-desc":
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        case "due-date-asc":
+          return compareAsc(new Date(a.due), new Date(b.due));
+        case "due-date-desc":
+          return compareAsc(new Date(b.due), new Date(a.due));
+        default:
+          return compareAsc(new Date(b.inserted_at), new Date(a.inserted_at));
+      }
+    });
 
   return (
     <div className="flex justify-between gap-4">
@@ -73,193 +57,11 @@ export default function TodoList({ items }: { items: TodoItem[] }) {
         <AddNewTask />
         <SortButton setSelectedSort={setSortBy} />
         <div className="space-y-4">
-          {items
-            .filter(STATUS_FILTER[filters.status])
-            .filter(PRIORITY_FILTER[filters.priority])
-            .filter((item) => {
-              if (filters.date !== "All" && item?.due) {
-                return (
-                  compareDesc(new Date(item.due), new Date(filters.date)) >= 0
-                );
-              } else {
-                return true;
-              }
-            })
-            .sort((a, b) => {
-              switch (sortBy) {
-                case "priority-asc":
-                  return priorityOrder[a.priority] - priorityOrder[b.priority];
-                case "priority-desc":
-                  return priorityOrder[b.priority] - priorityOrder[a.priority];
-                case "due-date-asc":
-                  return compareAsc(new Date(a.due), new Date(b.due));
-                case "due-date-desc":
-                  return compareAsc(new Date(b.due), new Date(a.due));
-                default:
-                  return compareAsc(
-                    new Date(b.inserted_at),
-                    new Date(a.inserted_at)
-                  );
-              }
-            })
-            .map((item) => {
-              return <TaskCard key={item.id} todoItem={item} />;
-            })}
+          {filteredItems.map((item) => (
+            <TaskCard key={item.id} todoItem={item} />
+          ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-function TaskCard({ todoItem }: { todoItem: TodoItem }) {
-  return (
-    <Card key={todoItem.id} className="w-full">
-      <CardContent className="flex items-center gap-4 pt-4">
-        <Checkbox
-          className="h-5 w-5 rounded-full"
-          id="task1"
-          checked={todoItem.is_complete}
-          onClick={async () => {
-            await updateTodoStatus(todoItem.id, !todoItem.is_complete);
-          }}
-        />
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <Label className="text-base font-medium" htmlFor="task1">
-              {todoItem.name}
-            </Label>
-            {todoItem.priority && (
-              <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
-                {todoItem.priority}
-              </span>
-            )}
-            {todoItem.due && (
-              <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
-                {todoItem.due}
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {todoItem.description}
-          </p>
-        </div>
-        <XCircle
-          className="h-5 w-5 hover:text-red-600 cursor-pointer self-baseline"
-          onClick={async () => {
-            await deleteTodo(todoItem.id);
-          }}
-        />
-      </CardContent>
-    </Card>
-  );
-}
-
-function Filters({ filters, setFilters }: { filters: any; setFilters: any }) {
-  const [calendarFilterOpen, setCalendarFilterOpen] = useState<boolean>(false);
-  const statusFilter = filters.status;
-  const priorityFilter = filters.priority;
-  const dateFilter = filters.date;
-
-  return (
-    <div className="flex flex-col gap-4 ">
-      <Label htmlFor="filter-completed">Filter by priority:</Label>
-      <RadioGroup
-        className="flex items-center gap-4"
-        defaultValue="All"
-        value={priorityFilter}
-        onValueChange={(e) =>
-          setFilters({
-            ...filters,
-            priority: e as keyof typeof PRIORITY_FILTER,
-          })
-        }
-        id="filter-priority"
-      >
-        {PRIORITY_FILTER_NAMES.map((name, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <RadioGroupItem checked={name === priorityFilter} value={name} />
-            <Label htmlFor={`priority-${name}`}>{name}</Label>
-          </div>
-        ))}
-      </RadioGroup>
-      <Label htmlFor="filter-completed">Filter by status:</Label>
-      <RadioGroup
-        className="flex items-center gap-4"
-        defaultValue="All"
-        value={statusFilter}
-        onValueChange={(e) =>
-          setFilters({ ...filters, status: e as keyof typeof STATUS_FILTER })
-        }
-        id="filter-completed"
-      >
-        {STATUS_FILTER_NAMES.map((name, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <RadioGroupItem checked={name === statusFilter} value={name} />
-            <Label htmlFor={`status-${name}`}>{name}</Label>
-          </div>
-        ))}
-      </RadioGroup>
-      <Label htmlFor="filter-due-date">Filter by due date:</Label>
-      <Popover open={calendarFilterOpen} onOpenChange={setCalendarFilterOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant={"outline"}
-            className={cn(
-              "w-[240px] justify-start text-left font-normal",
-              !dateFilter && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {dateFilter && dateFilter !== "All" ? (
-              format(dateFilter, "PPP")
-            ) : (
-              <span>Pick a date</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={dateFilter}
-            onSelect={(e) => {
-              const selectedDate = e as Date;
-              if (selectedDate) {
-                setFilters({
-                  ...filters,
-                  date: convertDate(selectedDate),
-                });
-              }
-              setCalendarFilterOpen(false);
-            }}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-}
-
-function SortButton({
-  setSelectedSort,
-}: {
-  setSelectedSort: (value: string) => void;
-}) {
-  return (
-    <div className="flex gap-4 items-center place-content-end my-4">
-      <Label>Sort by:</Label>
-      <Select onValueChange={(value) => setSelectedSort(value)}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select option" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectItem value="priority-asc">Priority: Low to High</SelectItem>
-            <SelectItem value="priority-desc">Priority: High to Low</SelectItem>
-            <SelectItem value="due-date-asc">Due date: Low to High</SelectItem>
-            <SelectItem value="due-date-desc">Due date: High to Low</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
     </div>
   );
 }
