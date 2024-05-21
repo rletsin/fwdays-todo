@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import todoIcon from "./todo_icon.svg";
 import TodoList from "@/components/todoList/todoList";
 import { redirect } from "next/navigation";
+import fetchTodos from "@/actions/fetchTodos";
 
 export default async function Index() {
   const supabase = createClient();
@@ -16,7 +17,7 @@ export default async function Index() {
     return redirect("/login");
   }
 
-  const { data: todos } = await supabase.from("todos").select();
+  const todos = await fetchTodos();
 
   // Handle null case for todos
   const todoItems = todos || [];
