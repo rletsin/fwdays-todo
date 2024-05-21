@@ -2,13 +2,14 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-const supabase = createClient();
 export default async function addTodo(todo: {
   name: string;
   description: string;
   due: string;
   priority: string;
 }) {
+  const supabase = createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -31,5 +32,5 @@ export default async function addTodo(todo: {
   console.log("data", data);
   console.log("error", error);
 
-  revalidatePath("/todo");
+  revalidatePath("/");
 }

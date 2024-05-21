@@ -2,8 +2,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-const supabase = createClient();
 export default async function deleteTodo(todoId: number) {
+  const supabase = createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -30,5 +31,5 @@ export default async function deleteTodo(todoId: number) {
 
   console.log("Deleted todo:", data);
 
-  revalidatePath("/todo");
+  revalidatePath("/");
 }
