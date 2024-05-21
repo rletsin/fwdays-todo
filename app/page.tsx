@@ -1,7 +1,7 @@
 import AuthButton from "@/components/AuthButton";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
-import todoIcon from "./todo_icon.svg";
+import todoIcon from "../public/todo_icon.svg";
 import TodoList from "@/components/todoList/todoList";
 import { redirect } from "next/navigation";
 import fetchTodos from "@/actions/fetchTodos";
